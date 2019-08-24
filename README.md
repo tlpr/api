@@ -1,14 +1,13 @@
 # The Las Pegasus Radio RESTful API
 
 ## Development roadmap:
-- **(Scheduled)** Basic database connectivity
+- **(Done)** ~~Basic database connectivity~~
 - Users (ID, unique nickname, e-mail address, password, permissions level, registration IP address, last login IP address, last login, avatar url, totp secret key, oauth2 code)
-	- **(Scheduled)** Invite codes (ID, date issued, issuer, invite code (random sha1), boolean if already used, new user)
-	- **(Scheduled)** User account registration\*2
-	- **(Scheduled)** Getting user information\*1
-	- **(Scheduled)** User credentials validation\*1
-	- **(Scheduled)** User account edit function\*1
-	- **(Scheduled)** User account deletion\*2
+	- **(In progress)** User account registration\*2
+	- **(In progress)** Getting user information\*1
+	- **(In progress)** User credentials validation\*1
+	- **(In progress)** User account edit function\*1
+	- **(In progress)** User account deletion\*2
 	- **(Scheduled)** Two factor authentication\*1
 - Invite codes (ID, date issued, issuer, invite code (random sha1), boolean if already used, new user)
 	- **(Scheduled)** Create new invite code\*2
