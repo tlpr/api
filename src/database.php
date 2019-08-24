@@ -23,12 +23,12 @@ class database
   var $mysqli;
 
 
-  public static function get_connection_object ()
+  public function get_connection_object ()
   {
 
     $connection = new mysqli(
-      $this->mysql_address[ "ip" ], $this->mysql_username, $this->mysql_password,
-      $this->mysql_db_name, $this->mysql_address[ "port" ]
+      self::mysql_address[ "ip" ], self::mysql_username, self::mysql_password,
+      self::mysql_db_name, self::mysql_address[ "port" ]
     );
 
     if ( mysqli_connect_errno() )
