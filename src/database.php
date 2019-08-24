@@ -11,8 +11,8 @@ class database
 {
 
   # Please make sure to edit these before deploying to production.
-  private const mysql_username = "root";
-  private const mysql_password = "";
+  private const mysql_username = "tlprapi";
+  private const mysql_password = "hGr6o0NORp2Xd1pd";
   private const mysql_db_name  = "tlpr-dev";
 
   private const mysql_address = array(

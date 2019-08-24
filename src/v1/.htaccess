@@ -1,4 +1,3 @@
 RewriteEngine On
 RewriteRule ^user/?$ user.php [NC,L]
 RewriteRule ^user/([0-9]+)/?$ user.php?id=$1 [NC,L]
-

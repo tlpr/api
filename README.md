@@ -4,7 +4,7 @@
 - **(Done)** ~~Basic database connectivity~~
 - Users (ID, unique nickname, e-mail address, password, permissions level, registration IP address, last login IP address, last login, avatar url, totp secret key, oauth2 code)
 	- **(In progress)** User account registration\*2
-	- **(In progress)** Getting user information\*1
+	- **(Nearly done)** Getting user information\*1
 	- **(In progress)** User credentials validation\*1
 	- **(In progress)** User account edit function\*1
 	- **(In progress)** User account deletion\*2
