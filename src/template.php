@@ -9,6 +9,7 @@
 
 
 require_once("../database.php");
+header("Content-Type: application/json");
 
 $database = new database();
 $mysqli = $database->get_connection_object();
