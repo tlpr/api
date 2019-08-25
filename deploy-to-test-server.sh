@@ -7,10 +7,12 @@ REQUIRES_SUDO=1
 if [[ "$REQUIRES_SUDO" == "0" ]]; then
 
   cp -r src/* $TEST_SERVER_LOCATION
+  cp -r tests $TEST_SERVER_LOCATION/../
 
 else
 
   sudo cp -r src/* $TEST_SERVER_LOCATION
+  sudo cp -r tests $TEST_SERVER_LOCATION/../
 
 fi
 

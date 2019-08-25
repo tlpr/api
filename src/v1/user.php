@@ -50,7 +50,16 @@ switch ($request_method)
 
   # Insert new record
   case "POST":
-    # ...
+
+    $username = @$_POST[ "username" ];
+    $password = @$_POST[ "password" ];
+    $email = @$_POST[ "email" ];
+
+    if ( empty($username) || empty($password) )
+      die( json_encode(array("status" => false, "status-text" => "Not enough parameters.")) );
+
+    echo json_encode(create_new_account($username, $password, $email));
+
     break;
   # ----
 
@@ -109,6 +118,89 @@ function get_user_information ($user_id, $requested_information="")
     return array("status" => false, "status-text" => "User does not exist.");
 
   return array("status" => true, "status-text" => "Most likely success", "user-data" => $user_data);
+
+}
+
+
+function create_new_account ($username, $email, $password)
+{
+
+  global $mysqli;
+
+  $email_specified = !empty($email);
+
+  if ( strlen($username) > 20 )
+    return array("status" => false, "status-text" => "Username too long.");
+
+  if ( strlen($username) < 4 )
+    return array("status" => false, "status-text" => "Username too short.");
+
+  if ( !$email_specified )
+  {
+
+    if ( !filter_var($email, FILTER_VALIDATE_EMAIL) )
+      return array("status" => false, "status-text" => "E-mail address not correct.");
+
+    if ( strlen($email) > 40 )
+      return array("status" => false, "status-text" => "E-mail address too long.");
+
+    if ( strlen($email) < 4 )
+      return array("status" => false, "status-text" => "E-mail address too short.");
+
+  }
+
+  if ( strlen($password) > 64 )
+    return array("status" => false, "status-text" => "Password too long.");
+
+  if ( strlen($password) < 6 )
+    return array("status" => false, "status-text" => "Password too short.");
+
+  
+  $sql_escaped_username = $mysqli->real_escape_string($username);
+  if ( $username != $sql_escaped_username )
+    return array("status" => false, "status-text" => "Access denied.");
+
+  if ( !$email_specified )
+  {
+
+    $sql_escaped_email = $mysqli->real_escape_string($email);
+    if ($email != $sql_escaped_email)
+      return array("status" => false, "status-text" => "Access denied.");
+  
+  }
+
+  $secured_password = password_hash($password, PASSWORD_BCRYPT, array("cost" => 13));
+  $register_ip = $_SERVER["REMOTE_ADDR"];
+
+  if ( $email_specified )
+  {
+
+    $email_confirmation_code = (string)rand(1000000, 9999999);
+
+    # THIS SECTION NEEDS TO BE EDITED
+    #mail(
+    #  $email,                        # TO (user) e-mail address
+    #  "E-mail address confirmation", # Subject
+    #  "Please confirm your e-mail at .....", # E-mail contents
+    #  "From: webmaster@laspegasus.net" # Headers
+    #);
+    # --- --- --- --- --- --- --- ---
+    
+    $email = "code:$email_confirmation_code";
+
+  }
+
+  $current_timestamp = time();
+
+  $sql_query = "INSERT INTO `users` (id, nickname, email, password, register_ip, last_login_ip, last_login_date, avatar_url) VALUES (0, '$username', '$email', '$secured_password', '$register_ip', '$register_ip', $current_timestamp, '')";
+
+  $response = $mysqli->query($sql_query);
+
+  if ( !$response )
+    return array("status" => false, "status-text" => "Database error: $mysqli->error");
+
+  else
+    return array("status" => true, "status-text" => "Most likely success.");
 
 }
 
