@@ -38,7 +38,7 @@ switch ($request_method)
         $response = get_user_information($user_id);
     }
     else
-      $response = get_all_users();
+      $response = array("status" => false, "status-text" => "Please specify the User ID");
 
     if ( gettype($response) == "array" )
       echo json_encode($response);
@@ -104,14 +104,11 @@ function get_user_information ($user_id, $requested_information="")
     return array("status" => false, "status-text" => "Database error: $mysqli->error");
 
   $user_data = $response->fetch_array(MYSQLI_ASSOC);
+
+  if ($user_data === null)
+    return array("status" => false, "status-text" => "User does not exist.");
+
   return array("status" => true, "status-text" => "Most likely success", "user-data" => $user_data);
-
-}
-
-
-function get_all_users ()
-{
-
 
 }
 
