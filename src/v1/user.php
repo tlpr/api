@@ -74,7 +74,16 @@ switch ($request_method)
 
   # Remove record
   case "DELETE":
-    # ...
+
+    $is_id_specified = isset($_GET[ "id" ]);
+    if (!$is_id_specified)
+      die( json_encode(array("status" => false, "status-text" => "User ID missing.")) );
+
+    $user_id = $_GET[ "id" ];
+
+    $response = delete_account($user_id);
+    echo json_encode($response);
+
     break;
   # ----
 
@@ -211,6 +220,7 @@ function create_new_account ($username, $email, $password)
 
 }
 
+
 function validate_password ($username, $password)
 {
 
@@ -238,6 +248,25 @@ function validate_password ($username, $password)
   $result = password_verify($password, $user_array[ "password" ]);
 
   return array("status" => $result, "status-text" => "Checked without problems.");
+
+}
+
+
+function delete_account ($id)
+{
+
+  global $mysqli;
+
+  if ( !is_numeric($id) )
+    return array("status" => false, "status-text" => "ID has to be a number.");
+
+  $sql_query = "DELETE FROM `users` WHERE `id` = $id";
+  $response = $mysqli->query($sql_query);
+
+  if ($response)
+    return array("status" => true, "status-text" => "Account with ID $id has been removed.");
+  else
+    return array("status" => false, "status-text" => "Database error: $mysqli->error");
 
 }
 

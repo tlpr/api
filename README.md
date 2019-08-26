@@ -3,11 +3,11 @@
 ## Development roadmap:
 - **(Done)** ~~Basic database connectivity~~
 - Users (ID, unique nickname, e-mail address, password, permissions level, registration IP address, last login IP address, last login, avatar url, totp secret key, oauth2 code)
-	- **(Done without e-mail registration)** ~~User account registration~~
+	- **(Done, no e-mail verification yet)** ~~User account registration~~
 	- **(Done)** ~~Getting user information~~
-	- **(Done without being available through API yet)** ~~User credentials validation~~
+	- **(Done, not available through API yet)** ~~User credentials validation~~
 	- **(In progress)** User account edit function
-	- **(In progress)** User account deletion
+	- **(Done)** ~~User account deletion~~
 	- **(Scheduled)** Two factor authentication
 - Invite codes (ID, date issued, issuer, invite code (random sha1), boolean if already used, new user)
 	- **(Scheduled)** Create new invite code
