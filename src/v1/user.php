@@ -32,11 +32,14 @@ switch ($request_method)
 
     if ($requesting_user_by_id)
     {
+
       if ($requesting_specified_row)
         $response = get_user_information($user_id, $requested_row);
+
       else
         $response = get_user_information($user_id);
-    }
+
+    } # end if requesting_user_by_id
     else
       $response = array("status" => false, "status-text" => "Please specify the User ID");
 
@@ -196,11 +199,45 @@ function create_new_account ($username, $email, $password)
 
   $response = $mysqli->query($sql_query);
 
+  if ( $mysqli->errno == 1062 )
+    return array("status" => false, "status-text" => "User with this username already exists.");
+
+
   if ( !$response )
     return array("status" => false, "status-text" => "Database error: $mysqli->error");
 
   else
     return array("status" => true, "status-text" => "Most likely success.");
+
+}
+
+function validate_password ($username, $password)
+{
+
+  global $mysqli;
+
+  if (( strlen($username) > 20 ) || ( strlen($username) < 4 ))
+    return array("status" => false, "status-text" => "Wrong username or password.");
+
+  if (( strlen($password) > 64 ) || ( strlen($password) > 6 ))
+    return array("status" => false, "status-text" => "Wrong username or password.");
+
+  $sql_escaped_username = $mysqli->real_string_escape($username);
+
+  if ($username != $sql_escaped_username)
+    return array("status" => false, "status-text" => "Access denied.");
+
+  $sql_query = "SELECT `password` FROM `users` WHERE `username` = '$username'";
+  $response = $mysqli->query($sql_query);
+
+  if (!$response)
+    return array("status" => false, "status-text" => "Database error: $mysqli->error");
+
+  $user_array = $response->fetch_array(MYSQLI_ASSOC);
+
+  $result = password_verify($password, $user_array[ "password" ]);
+
+  return array("status" => $result, "status-text" => "Checked without problems.");
 
 }
 
