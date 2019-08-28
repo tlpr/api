@@ -294,6 +294,9 @@ function edit_account ($id, $rows_to_change=[])
   foreach ($rows_to_change as $row_key => $row_content)
   {
 
+    if ($row_key == "password")
+      $row_content = password_hash($row_content, PASSWORD_BCRYPT, array("cost" => 13));
+
     $sql_escaped_row_key = $mysqli->real_escape_string($row_key);
     $sql_escaped_row_content = $mysqli->real_escape_string($row_content);
     if ( ($row_key != $sql_escaped_row_key) && ($row_content != $sql_escaped_row_content) )
@@ -312,6 +315,36 @@ function edit_account ($id, $rows_to_change=[])
     return array("status" => false, "status-text" => "Database error: $mysqli->error");
 
   return array("status" => true, "status-text" => "Information updated!");
+
+}
+
+
+function validate_totp ($id, $code)
+{
+
+  global $mysqli;
+  use OTPHP\TOTP;
+
+  if (!is_numeric($id))
+    return array("status" => false, "status-text" => "ID has to be numeric.");
+
+  $sql_query = "SELECT `totp_key` FROM `users` WHERE `id`=$id";
+  $response = $mysqli->query($sql_query);
+
+  if (!$response)
+    return array("status" => false, "status-text" => "User with this ID does not exist.");
+
+  $response_data = $response->fetch_array(MYSQLI_ASSOC);
+  $secret_key = $response_data[ "totp_key" ];
+
+  $otp = TOTP::create($secret_key);
+  $is_code_valid = $otp->verify($code);
+
+  if ($is_code_valid)
+    return array("status" => true, "status-text" => "The given code is valid.");
+
+  else
+    return array("status" => false, "status-text" => "The given code is not valid.");
 
 }
 
