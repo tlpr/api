@@ -68,7 +68,14 @@ switch ($request_method)
 
   # Update existing record
   case "PUT":
-    # ...
+
+    $id = $_GET["id"];
+    $put_vars = json_decode( file_get_contents("php://input"), "r" );
+
+    $response = edit_account($id, $put_vars);
+
+    echo json_encode($response);
+
     break;
   # ----
 
@@ -267,6 +274,44 @@ function delete_account ($id)
     return array("status" => true, "status-text" => "Account with ID $id has been removed.");
   else
     return array("status" => false, "status-text" => "Database error: $mysqli->error");
+
+}
+
+
+function edit_account ($id, $rows_to_change=[])
+{
+
+  global $mysqli;
+
+  if ( empty($rows_to_change) )
+    return array("status" => false, "status-text" => "Nothing to change.");
+
+  if ( !is_numeric($id) )
+    return array("status" => false, "status-text" => "ID has to be a number.");
+
+  $sql_query = "UPDATE `users` SET ";
+
+  foreach ($rows_to_change as $row_key => $row_content)
+  {
+
+    $sql_escaped_row_key = $mysqli->real_escape_string($row_key);
+    $sql_escaped_row_content = $mysqli->real_escape_string($row_content);
+    if ( ($row_key != $sql_escaped_row_key) && ($row_content != $sql_escaped_row_content) )
+      return array("status" => false, "status-text" => "Access denied.");
+
+    $sql_query .= "`$row_key`='$row_content', ";
+
+  }
+
+  # remove the comma from the end
+  $sql_query = substr($sql_query, 0, -2) . " WHERE `id`=$id";
+
+  $response = $mysqli->query($sql_query);
+
+  if ( !$response )
+    return array("status" => false, "status-text" => "Database error: $mysqli->error");
+
+  return array("status" => true, "status-text" => "Information updated!");
 
 }
 
