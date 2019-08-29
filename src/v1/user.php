@@ -7,6 +7,9 @@
  *
  */
 
+require_once("../vendor/autoload.php");
+use ParagonIE\ConstantTime\Base32;
+use OTPHP\TOTP;
 
 require_once("../database.php");
 header("Content-Type: application/json");
@@ -282,6 +285,7 @@ function edit_account ($id, $rows_to_change=[])
 {
 
   global $mysqli;
+  $new_totp_key = '';
 
   if ( empty($rows_to_change) )
     return array("status" => false, "status-text" => "Nothing to change.");
@@ -296,6 +300,9 @@ function edit_account ($id, $rows_to_change=[])
 
     if ($row_key == "password")
       $row_content = password_hash($row_content, PASSWORD_BCRYPT, array("cost" => 13));
+
+    elseif ($row_key == "totp_key")
+      $new_totp_key = $row_content = trim( Base32::encodeUpper(random_bytes(8)), "=" );
 
     $sql_escaped_row_key = $mysqli->real_escape_string($row_key);
     $sql_escaped_row_content = $mysqli->real_escape_string($row_content);
@@ -314,7 +321,7 @@ function edit_account ($id, $rows_to_change=[])
   if ( !$response )
     return array("status" => false, "status-text" => "Database error: $mysqli->error");
 
-  return array("status" => true, "status-text" => "Information updated!");
+  return array("status" => true, "status-text" => "Information updated!", "totp-key" => $new_totp_key);
 
 }
 
@@ -323,7 +330,6 @@ function validate_totp ($id, $code)
 {
 
   global $mysqli;
-  use OTPHP\TOTP;
 
   if (!is_numeric($id))
     return array("status" => false, "status-text" => "ID has to be numeric.");
