@@ -8,7 +8,7 @@
   - **(Done)** ~~Getting user information~~
   - **(Done)** ~~User account edit function~~
   - **(Done)** ~~User account deletion~~
-  - **(In progress)** Two factor authentication
+  - **(Done, not available through API yet)** ~~Two factor authentication~~
 - Invite codes (ID, date issued, issuer, invite code (random sha1), boolean if already used, new user)
 	- **(Scheduled)** Create new invite code
 	- **(Scheduled)** Validate invite code
