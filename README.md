@@ -10,8 +10,8 @@
   - **(Done)** ~~User account deletion~~
   - **(Done, not available through API yet)** ~~Two factor authentication~~
 - Invite codes (ID, date issued, issuer, invite code (random sha1), boolean if already used, new user)
-	- **(Scheduled)** Create new invite code
-	- **(Scheduled)** Validate invite code
+	- **(Done)** ~~Create new invite code~~
+	- **(In progress)** Validate invite code
 - Song entries (ID, song title, album title, song file location on drive, album cover url)
 	- **(Scheduled)** Adding and removing song entries
 	- **(Scheduled)** Viewing song information (Both from database and Icecast)
