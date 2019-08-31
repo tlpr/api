@@ -34,7 +34,13 @@ switch ($request_method)
 
   # Validate invite code
   case "PUT":
-    # ...
+    
+    $put_vars = json_decode( file_get_contents("php://input"), "r" );
+
+    $response = validate_invitation($put_vars);
+
+    echo json_encode($response);
+
     break;
   # ----
 
@@ -72,5 +78,43 @@ function generate_new_invite ($issuer_id)
     return array("status" => false, "status-text" => "MySQL error: $mysqli->error");
 
   return array("status" => true, "status-text" => "Added!");
+
+}
+
+
+function validate_invitation ($put_vars)
+{
+
+  global $mysqli;
+
+  $code = @$put_vars[ "code" ];
+  $user_id = @$put_vars[ "user_id" ];
+
+  if ( !@$code || !@$user_id )
+    return array("status" => false, "status-text" => "Missing arguments.");
+
+  if (!is_numeric($code))
+    return array("status" => false, "status-text" => "Code is incorrect.");
+
+  $sql_escaped_username = $mysqli->real_escape_string($user_id);
+  if ($user_id != $sql_escaped_username)
+    return array("status" => false, "status-text" => "Access denied.");
+
+  $select_sql_query = "SELECT `is_used` FROM `invitations` WHERE `code` = $code";
+  $select_response = $mysqli->query($select_sql_query);
+  if (!$select_response)
+    return array("status" => false, "status-text" => "Database error: $mysqli->error");
+
+  $is_used = $select_response->fetch_array(MYSQLI_ASSOC)[ "is_used" ];
+  if ($is_used)
+    return array("status" => false, "status-text" => "This code is in use.");
+ 
+  $update_sql_query = "UPDATE `invitations` SET `is_used` = 1, `new_user` = $user_id WHERE `code` = $code";
+  $response = $mysqli->query($update_sql_query);
+
+  if (!$response)
+    return array("status" => false, "status-text" => "Database error: $mysqli->error");
+
+  return array("status" => true, "status-text" => "Code has been used correctly.");
 
 }
