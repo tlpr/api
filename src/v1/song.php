@@ -98,12 +98,14 @@ function get_song_information ($song_id)
 
     return array("status" => true, "status-text" => "Success.", "songs" => $result);
 
-  }
+  } # end of icecast
+
   elseif ( is_numeric($song_id) )
   {
 
 
-  }
+  } # end of db
+
   else
   {
     return array("status" => false, "status-text" => "song_id has to be either 'icecast' or a number.");
