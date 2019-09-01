@@ -9,6 +9,7 @@
 
 
 require_once("../database.php");
+require_once("../configuration.php");
 header("Content-Type: application/json");
 
 $database = new database();
@@ -48,9 +49,54 @@ switch ($request_method)
 function get_song_information ($song_id)
 {
 
+  global $mysqli;
+  global $icestats_url;
+  
+
   if ($song_id == "icecast")
   {
 
+    $response = file_get_contents($icestats_url, true);
+    if (!$response)
+      return array("status" => false, "status-text" => "Could not connect to Icecast.");
+    
+    $response_json = json_decode($response, true);
+    $icestats = $response_json[ "icestats" ][ "source" ];
+
+    $result = array();
+
+    if (isset( $icestats[ "artist" ], $icestats[ "title" ] ))
+    {
+
+      $song_title = $icestats[ "artist" ] . " - " . $icestats[ "title" ];
+      $result[0] = $song_title;
+
+    }
+    elseif ( !isset($icestats["artist"]) && isset($icestats["title"]) )
+    {
+
+      $song_title = $icestats["title"];
+      $result[0] = $song_title;
+
+    }
+    elseif ( isset($icestats[0]) )
+    {
+
+      foreach ($icestats as $source)
+      {
+
+        if (isset($source["artist"]))
+          $song_title = $source["artist"] . " - " . $source["title"];
+
+        else
+          $song_title = $source["title"];
+
+        array_push($result, $song_title);
+      }
+
+    }
+
+    return array("status" => true, "status-text" => "Success.", "songs" => $result);
 
   }
   elseif ( is_numeric($song_id) )

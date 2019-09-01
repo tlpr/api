@@ -5,8 +5,8 @@ RewriteRule ^user/([0-9]+)/(([A-Za-z\-])\w+)/?$ user.php?id=$1&row=$2 [NC,L]
 
 RewriteRule ^invite/?$ invite.php [NC,L]
 RewriteRule ^invite/([0-9]+)/?$ invite.php?id=$1 [NC,L]
-RewriteRule ^invite/([0-9]+)/(([A-Za-z\-])\w+)/?$ invite.php?id=$1&row=$2 [NC,L]
+RewriteRule ^invite/([0-9]+)/(([A-Za-z\-])\w+)/?$ invite.php?id=$1 [NC,L]
 
 RewriteRule ^song/?$ song.php [NC,L]
-RewriteRule ^song/([0-9]+)/?$ song.php?id=$1 [NC,L]
-RewriteRule ^song/([0-9]+)/(([A-Za-z\-])\w+)/?$ song.php?id=$1&row=$2 [NC,L]
+RewriteRule ^song/([0-9]+)/?$ song.php?song_id=$1 [NC,L]
+RewriteRule ^song/([0-9]+)/(([A-Za-z\-])\w+)/?$ song.php?song_id=$1 [NC,L]
