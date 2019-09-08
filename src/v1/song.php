@@ -127,6 +127,14 @@ function get_song_information ($song_id)
   elseif ( is_numeric($song_id) )
   {
 
+	$sql = "SELECT * FROM `songs` WHERE `id` = $song_id";
+	$response = $mysqli->query($sql);
+	
+	if (!$response)
+		return array("status" => false, "status-text" => "Database error: $mysqli->error");
+		
+	$data = $response->fetch_array(MYSQLI_ASSOC);
+	return array("status" => true, "status-text" => "Success.. probably.", "song-data" => $data);
 
   } # end of db
 

@@ -12,9 +12,9 @@
 - *~~Invite codes~~ - done*
 	- **(Done)** ~~Create new invite code~~
 	- **(Done)** ~~Validate invite code~~
-- Song entries (ID, song title, album title, song file location on drive, album cover url)
+- *~~Song entries~~ - done*
 	- **(Done)** ~~Adding and removing song entries~~
-	- **(In progress, Icecast done)** Viewing song information (Both from database and Icecast)
+	- **(Done)** ~~Viewing song information (Both from database and Icecast)~~
 - Song likes (ID, song ID, user ID, status)
 	- **(Scheduled)** Adding status for user
 	- **(Scheduled)** Getting status information for user
