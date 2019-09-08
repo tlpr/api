@@ -33,6 +33,7 @@ switch ($request_method)
 
   # Update existing record
   case "PUT":
+    $put_vars = json_decode( file_get_contents("php://input"), "r" );
     # ...
     break;
   # ----
