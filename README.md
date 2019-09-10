@@ -15,11 +15,11 @@
 - *~~Song entries~~ - done*
 	- **(Done)** ~~Adding and removing song entries~~
 	- **(Done)** ~~Viewing song information (Both from database and Icecast)~~
-- Song likes (ID, song ID, user ID, status)
+- *~~Song likes~~ - done*
 	- **(Done)** ~~Adding status for user~~
 	- **(Done)** ~~Getting status information for user~~
-	- **(In progress)** Removing statuses
-- **(Scheduled)** Additional JSON argument for easier support of multilingual frontends.
+	- **(Done)** ~~Removing statuses~~
+- **(In progress)** Additional JSON argument for easier support of multilingual frontends.
 - **(Scheduled)** Required oAuth2 authentication.
 
 Development roadmap may be subject to be changed.

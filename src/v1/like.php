@@ -43,15 +43,15 @@ switch ($request_method)
     break;
   # ----
 
-  # Update existing record
-  case "PUT":
-    # ...
-    break;
-  # ----
-
   # Remove record
   case "DELETE":
-    # ...
+    
+    if (!isset($_GET[ "song_id" ], $_GET["song_id"]))
+		die( json_encode(array("status" => false, "status-text" => "User ID and Song ID are required.")) );
+		
+	$response = delete_status($_GET[ "user_id" ], $_GET[ "song_id" ]);
+	echo json_encode($response);
+    
     break;
   # ----
 
@@ -107,6 +107,25 @@ function add_status($user_id, $song_id, $status)
 		return array("status" => false, "status-text" => "Database error: $mysqli->error");
 		
 	return array("status" => true, "status-text" => "Updated!");
+	
+}
+
+
+function delete_status($user_id, $song_id)
+{
+	
+	global $mysqli;
+	
+	if ( !is_numeric($user_id) || !is_numeric($song_id) )
+		return array("status" => false, "status-text" => "All values has to be numbers.");
+		
+	$sql = "DELETE FROM `likes` WHERE `user_id` = $user_id AND `song_id` = $song_id";
+	$response = $mysqli->query($sql);
+	
+	if (!$response)
+		return array("status" => false, "status-text" => "Database error: $mysqli->error");
+		
+	return array("status" => true, "status-text" => "If entry like this existed, it is now gone.");
 	
 }
 
