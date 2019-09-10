@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>The Las Pegasus Radio API - Response codes</title>
+<style type="text/css">
+	body { background: #121212;	}
+	* { color: #e9e9e9;	}
+</style>
+</head>
+<body>
+
+<h1>Response codes</h1>
+<pre>
+{
+
+	"status":      boolean,  (true if request was processed successfully, false if any error happened)
+	"status-text": string,   (human-readable message of what did just happen)
+	"code":        string    (short text that lets you manage api response in your software more easily)
+	
+}
+</pre>
+<h5>This file is a list of possible "code" responses and explanations of what they mean.</h5>
+
+
+<ul>
+<li id="global">
+	<h4><a href="#global">global</a></h4>
+	<ul>
+	<li><b>method-not-accepted</b> - HTTP error, API accepts only GET, POST, PUT and DELETE requests.</li>
+	<li><b>not-enough-parameters</b> - this one's self-explainatory, similar to previous one. required parameters are not present in the request.</li>
+	<li><b>sql-injection-attempt</b> - blocked SQL injection attack</li>
+	<li><b>db-error</b> - unexpected database error</li>
+	</ul>
+</li>
+<li id="user">
+	<h4><a href="#user">user.php</a></h4>
+	<ul>
+	<li><b>user-id-required</b> - "id" variable not found in GET request.</li>
+	<li><b>user-id-not-a-number</b> - "id" variable has to be numeric</li>
+	<li><b>user-not-exist</b> - requested user does not exist in the database</li>
+	<li><b>user-data-success</b> - user has been found and its data is in "user-data" variable</li>
+	<li><b>user-username-long</b> - given username is too long (more than 20 characters)</li>
+	<li><b>user-username-short</b> - given username is too short (less than 4 characters)</li>
+	<li><b>user-email-incorrect</b> - given e-mail address is not correct</li>
+	<li><b>user-email-long</b> - given e-mail address is too long (more than 40 characters)</li>
+	<li><b>user-email-short</b> - given e-mail address is too short (less than 4 characters)</li>
+	<li><b>user-password-long</b> - given password is too long (more than 64 characters)</li>
+	<li><b>user-password-short</b> - given password is too weak (less than 6 characters)</li>
+	<li><b>user-already-exist</b> - user with given username already exist</li>
+	<li><b>user-registered</b> - user has been created without any issue</li>
+	<li><b>user-wrong-credentials</b> - given login credentials are not valid</li>
+	<li><b>user-valid-credentials</b> - given login credentails are valid</li>
+	<li><b>user-removed</b> - user with given ID has been removed</li>
+	<li><b>user-nothing-to-change</b> - no changes has been requested</li>
+	<li><b>user-updated</b> - user information has been updated</li>
+	<li><b>user-totp-valid</b> - given 2FA totp code is valid</li>
+	<li><b>user-totp-wrong</b> - given 2FA totp code is not valid</li>
+	</ul>
+</li>
+</ul>
+
+</body>
+</html>

@@ -44,7 +44,7 @@ switch ($request_method)
 
     } # end if requesting_user_by_id
     else
-      $response = array("status" => false, "status-text" => "Please specify the User ID");
+      $response = array("status" => false, "status-text" => "Please specify the User ID", "code" => "user-id-required");
 
     if ( gettype($response) == "array" )
       echo json_encode($response);
@@ -62,7 +62,7 @@ switch ($request_method)
     $email = @$_POST[ "email" ];
 
     if ( empty($username) || empty($password) )
-      die( json_encode(array("status" => false, "status-text" => "Not enough parameters.")) );
+      die( json_encode(array("status" => false, "status-text" => "Not enough parameters.", "code" => "not-enough-parameters")) );
 
     echo json_encode(create_new_account($username, $password, $email));
 
@@ -87,7 +87,7 @@ switch ($request_method)
 
     $is_id_specified = isset($_GET[ "id" ]);
     if (!$is_id_specified)
-      die( json_encode(array("status" => false, "status-text" => "User ID missing.")) );
+      die( json_encode(array("status" => false, "status-text" => "User ID missing.", "code" => "user-id-required")) );
 
     $user_id = $_GET[ "id" ];
 
@@ -98,7 +98,7 @@ switch ($request_method)
   # ----
 
   default:
-    echo json_encode( array("status" => false, "status-text" => "Method not accepted.") );
+    echo json_encode( array("status" => false, "status-text" => "Method not accepted.", "code" => "method-not-accepted") );
     http_response_code(405);
     break;
 
@@ -114,7 +114,7 @@ function get_user_information ($user_id, $requested_information="")
 
   # since $user_id is a number, I'm skipping mysqli::real_escape_string
   if ( !is_numeric($user_id) )
-    return array("status" => false, "status-text" => "User ID has to be a number.");
+    return array("status" => false, "status-text" => "User ID has to be a number.", "code" => "user-id-not-a-number");
 
 
   if ( !$requested_information )
@@ -124,7 +124,7 @@ function get_user_information ($user_id, $requested_information="")
   {
     $escaped_requested_information_string = $mysqli->real_escape_string ($requested_information);
     if ($requested_information !== $escaped_requested_information_string)
-      return array("status" => false, "status-text" => "Access denied.");
+      return array("status" => false, "status-text" => "Access denied.", "code" => "sql-injection-attempt");
 
     $sql_query = "SELECT ($requested_information) FROM `users` WHERE `id` = $user_id";
   }
@@ -132,14 +132,14 @@ function get_user_information ($user_id, $requested_information="")
 
   $response = $mysqli->query($sql_query);
   if ( $mysqli->errno )
-    return array("status" => false, "status-text" => "Database error: $mysqli->error");
+    return array("status" => false, "status-text" => "Database error: $mysqli->error", "code" => "db-error");
 
   $user_data = $response->fetch_array(MYSQLI_ASSOC);
 
   if ($user_data === null)
-    return array("status" => false, "status-text" => "User does not exist.");
+    return array("status" => false, "status-text" => "User does not exist.", "code" => "user-not-exist");
 
-  return array("status" => true, "status-text" => "Most likely success", "user-data" => $user_data);
+  return array("status" => true, "status-text" => "Most likely success", "user-data" => $user_data, "code" => "user-data-success");
 
 }
 
@@ -152,42 +152,42 @@ function create_new_account ($username, $email, $password)
   $email_specified = !empty($email);
 
   if ( strlen($username) > 20 )
-    return array("status" => false, "status-text" => "Username too long.");
+    return array("status" => false, "status-text" => "Username too long.", "code" => "user-username-long");
 
   if ( strlen($username) < 4 )
-    return array("status" => false, "status-text" => "Username too short.");
+    return array("status" => false, "status-text" => "Username too short.", "code" => "user-username-short");
 
   if ( !$email_specified )
   {
 
     if ( !filter_var($email, FILTER_VALIDATE_EMAIL) )
-      return array("status" => false, "status-text" => "E-mail address not correct.");
+      return array("status" => false, "status-text" => "E-mail address not correct.", "code" => "user-email-incorrect");
 
     if ( strlen($email) > 40 )
-      return array("status" => false, "status-text" => "E-mail address too long.");
+      return array("status" => false, "status-text" => "E-mail address too long.", "code" => "user-email-long");
 
     if ( strlen($email) < 4 )
-      return array("status" => false, "status-text" => "E-mail address too short.");
+      return array("status" => false, "status-text" => "E-mail address too short.", "code" => "user-email-short");
 
   }
 
   if ( strlen($password) > 64 )
-    return array("status" => false, "status-text" => "Password too long.");
+    return array("status" => false, "status-text" => "Password too long.", "code" => "user-password-long");
 
   if ( strlen($password) < 6 )
-    return array("status" => false, "status-text" => "Password too short.");
+    return array("status" => false, "status-text" => "Password too short.", "code" => "user-password-short");
 
   
   $sql_escaped_username = $mysqli->real_escape_string($username);
   if ( $username != $sql_escaped_username )
-    return array("status" => false, "status-text" => "Access denied.");
+    return array("status" => false, "status-text" => "Access denied.", "code" => "sql-injection-attempt");
 
   if ( !$email_specified )
   {
 
     $sql_escaped_email = $mysqli->real_escape_string($email);
     if ($email != $sql_escaped_email)
-      return array("status" => false, "status-text" => "Access denied.");
+      return array("status" => false, "status-text" => "Access denied.", "code" => "sql-injection-attempt");
   
   }
 
@@ -219,14 +219,14 @@ function create_new_account ($username, $email, $password)
   $response = $mysqli->query($sql_query);
 
   if ( $mysqli->errno == 1062 )
-    return array("status" => false, "status-text" => "User with this username already exists.");
+    return array("status" => false, "status-text" => "User with this username already exists.", "code" => "user-already-exist");
 
 
   if ( !$response )
-    return array("status" => false, "status-text" => "Database error: $mysqli->error");
+    return array("status" => false, "status-text" => "Database error: $mysqli->error", "code" => "db-error");
 
   else
-    return array("status" => true, "status-text" => "Most likely success.");
+    return array("status" => true, "status-text" => "Most likely success.", "code" => "user-registered");
 
 }
 
@@ -237,27 +237,27 @@ function validate_password ($username, $password)
   global $mysqli;
 
   if (( strlen($username) > 20 ) || ( strlen($username) < 4 ))
-    return array("status" => false, "status-text" => "Wrong username or password.");
+    return array("status" => false, "status-text" => "Wrong username or password.", "code" => "user-wrong-credentials");
 
   if (( strlen($password) > 64 ) || ( strlen($password) > 6 ))
-    return array("status" => false, "status-text" => "Wrong username or password.");
+    return array("status" => false, "status-text" => "Wrong username or password.", "code" => "user-wrong-credentials");
 
   $sql_escaped_username = $mysqli->real_string_escape($username);
 
   if ($username != $sql_escaped_username)
-    return array("status" => false, "status-text" => "Access denied.");
+    return array("status" => false, "status-text" => "Access denied.", "code" => "sql-injection-attempt");
 
   $sql_query = "SELECT `password` FROM `users` WHERE `username` = '$username'";
   $response = $mysqli->query($sql_query);
 
   if (!$response)
-    return array("status" => false, "status-text" => "Database error: $mysqli->error");
+    return array("status" => false, "status-text" => "Database error: $mysqli->error", "code" => "db-error");
 
   $user_array = $response->fetch_array(MYSQLI_ASSOC);
 
   $result = password_verify($password, $user_array[ "password" ]);
 
-  return array("status" => $result, "status-text" => "Checked without problems.");
+  return array("status" => $result, "status-text" => "Checked without problems.", "code" => "user-valid-credentials");
 
 }
 
@@ -268,15 +268,15 @@ function delete_account ($id)
   global $mysqli;
 
   if ( !is_numeric($id) )
-    return array("status" => false, "status-text" => "ID has to be a number.");
+    return array("status" => false, "status-text" => "ID has to be a number.", "code" => "user-id-not-a-number");
 
   $sql_query = "DELETE FROM `users` WHERE `id` = $id";
   $response = $mysqli->query($sql_query);
 
   if ($response)
-    return array("status" => true, "status-text" => "Account with ID $id has been removed.");
+    return array("status" => true, "status-text" => "Account with ID $id has been removed.", "code" => "user-removed");
   else
-    return array("status" => false, "status-text" => "Database error: $mysqli->error");
+    return array("status" => false, "status-text" => "Database error: $mysqli->error", "code" => "db-error");
 
 }
 
@@ -288,10 +288,10 @@ function edit_account ($id, $rows_to_change=[])
   $new_totp_key = '';
 
   if ( empty($rows_to_change) )
-    return array("status" => false, "status-text" => "Nothing to change.");
+    return array("status" => false, "status-text" => "Nothing to change.", "code" => "user-nothing-to-change");
 
   if ( !is_numeric($id) )
-    return array("status" => false, "status-text" => "ID has to be a number.");
+    return array("status" => false, "status-text" => "ID has to be a number.", "code" => "user-id-not-a-number");
 
   $sql_query = "UPDATE `users` SET ";
 
@@ -307,7 +307,7 @@ function edit_account ($id, $rows_to_change=[])
     $sql_escaped_row_key = $mysqli->real_escape_string($row_key);
     $sql_escaped_row_content = $mysqli->real_escape_string($row_content);
     if ( ($row_key != $sql_escaped_row_key) && ($row_content != $sql_escaped_row_content) )
-      return array("status" => false, "status-text" => "Access denied.");
+      return array("status" => false, "status-text" => "Access denied.", "code" => "sql-injection-attempt");
 
     $sql_query .= "`$row_key`='$row_content', ";
 
@@ -319,9 +319,9 @@ function edit_account ($id, $rows_to_change=[])
   $response = $mysqli->query($sql_query);
 
   if ( !$response )
-    return array("status" => false, "status-text" => "Database error: $mysqli->error");
+    return array("status" => false, "status-text" => "Database error: $mysqli->error", "code" => "db-error");
 
-  return array("status" => true, "status-text" => "Information updated!", "totp-key" => $new_totp_key);
+  return array("status" => true, "status-text" => "Information updated!", "totp-key" => $new_totp_key, "code" => "user-updated");
 
 }
 
@@ -332,13 +332,13 @@ function validate_totp ($id, $code)
   global $mysqli;
 
   if (!is_numeric($id))
-    return array("status" => false, "status-text" => "ID has to be numeric.");
+    return array("status" => false, "status-text" => "ID has to be numeric.", "code" => "user-id-not-a-number");
 
   $sql_query = "SELECT `totp_key` FROM `users` WHERE `id`=$id";
   $response = $mysqli->query($sql_query);
 
   if (!$response)
-    return array("status" => false, "status-text" => "User with this ID does not exist.");
+    return array("status" => false, "status-text" => "User with this ID does not exist.", "code" => "user-not-exist");
 
   $response_data = $response->fetch_array(MYSQLI_ASSOC);
   $secret_key = $response_data[ "totp_key" ];
@@ -347,10 +347,10 @@ function validate_totp ($id, $code)
   $is_code_valid = $otp->verify($code);
 
   if ($is_code_valid)
-    return array("status" => true, "status-text" => "The given code is valid.");
+    return array("status" => true, "status-text" => "The given code is valid.", "code" => "user-totp-valid");
 
   else
-    return array("status" => false, "status-text" => "The given code is not valid.");
+    return array("status" => false, "status-text" => "The given code is not valid.", "code" => "user-totp-wrong");
 
 }
 
