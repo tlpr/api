@@ -16,7 +16,7 @@
 	- **(Done)** ~~Adding and removing song entries~~
 	- **(Done)** ~~Viewing song information (Both from database and Icecast)~~
 - Song likes (ID, song ID, user ID, status)
-	- **(In progress)** Adding status for user
+	- **(Done)** ~~Adding status for user~~
 	- **(Done)** ~~Getting status information for user~~
 	- **(In progress)** Removing statuses
 - **(Scheduled)** Additional JSON argument for easier support of multilingual frontends.
