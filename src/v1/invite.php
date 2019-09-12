@@ -24,7 +24,7 @@ switch ($request_method)
     
     $author_id = @$_GET[ "id" ];
     if (!$author_id)
-      die( json_encode(array("status" => false, "status-text" => "User ID is needed for this action.")) );
+      die( json_encode(array("status" => false, "status-text" => "User ID is needed for this action.", "code" => "invite-no-id")) );
     
     $response = generate_new_invite($author_id);
     echo json_encode($response);
@@ -45,7 +45,7 @@ switch ($request_method)
   # ----
 
   default:
-    echo json_encode( array("status" => false, "status-text" => "Method not accepted in this context.") );
+    echo json_encode( array("status" => false, "status-text" => "Method not accepted in this context.", "code" => "method-not-accepted") );
     http_response_code(405);
     break;
 
@@ -58,7 +58,7 @@ function generate_new_invite ($issuer_id)
   global $mysqli;
 
   if ( !is_numeric($issuer_id) )
-    return array("status" => false, "status-text" => "Please specify the User ID.");
+    return array("status" => false, "status-text" => "Please specify the User ID.", "code" => "invite-no-id");
 
   $issued_date = time();
 
@@ -75,9 +75,9 @@ function generate_new_invite ($issuer_id)
   } while (!$code_unique);
 
   if (!$response)
-    return array("status" => false, "status-text" => "MySQL error: $mysqli->error");
+    return array("status" => false, "status-text" => "MySQL error: $mysqli->error", "code" => "db-error");
 
-  return array("status" => true, "status-text" => "Added!");
+  return array("status" => true, "status-text" => "Added!", "code" => "invite-success");
 
 }
 
@@ -91,30 +91,30 @@ function validate_invitation ($put_vars)
   $user_id = @$put_vars[ "user_id" ];
 
   if ( !@$code || !@$user_id )
-    return array("status" => false, "status-text" => "Missing arguments.");
+    return array("status" => false, "status-text" => "Missing arguments.", "code" => "invite-args-missing");
 
   if (!is_numeric($code))
-    return array("status" => false, "status-text" => "Code is incorrect.");
+    return array("status" => false, "status-text" => "Code is incorrect.", "code" => "invite-code-invalid");
 
   $sql_escaped_username = $mysqli->real_escape_string($user_id);
   if ($user_id != $sql_escaped_username)
-    return array("status" => false, "status-text" => "Access denied.");
+    return array("status" => false, "status-text" => "Access denied.", "code" => "sql-injection-attempt");
 
   $select_sql_query = "SELECT `is_used` FROM `invitations` WHERE `code` = $code";
   $select_response = $mysqli->query($select_sql_query);
   if (!$select_response)
-    return array("status" => false, "status-text" => "Database error: $mysqli->error");
+    return array("status" => false, "status-text" => "Database error: $mysqli->error", "code" => "db-error");
 
   $is_used = $select_response->fetch_array(MYSQLI_ASSOC)[ "is_used" ];
   if ($is_used)
-    return array("status" => false, "status-text" => "This code is in use.");
+    return array("status" => false, "status-text" => "This code is in use.", "code" => "invite-in-use");
  
   $update_sql_query = "UPDATE `invitations` SET `is_used` = 1, `new_user` = $user_id WHERE `code` = $code";
   $response = $mysqli->query($update_sql_query);
 
   if (!$response)
-    return array("status" => false, "status-text" => "Database error: $mysqli->error");
+    return array("status" => false, "status-text" => "Database error: $mysqli->error", "code" => "db-error");
 
-  return array("status" => true, "status-text" => "Code has been used correctly.");
+  return array("status" => true, "status-text" => "Code has been used correctly.", "code" => "invite-success");
 
 }

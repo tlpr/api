@@ -19,7 +19,7 @@
 	- **(Done)** ~~Adding status for user~~
 	- **(Done)** ~~Getting status information for user~~
 	- **(Done)** ~~Removing statuses~~
-- **(In progress)** Additional JSON argument for easier support of multilingual frontends.
+- **(Done)** ~~Additional JSON argument for easier support of multilingual frontends.~~
 - **(Scheduled)** Required oAuth2 authentication.
 
 Development roadmap may be subject to be changed.

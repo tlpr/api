@@ -58,6 +58,37 @@
 	<li><b>user-totp-wrong</b> - given 2FA totp code is not valid</li>
 	</ul>
 </li>
+<li>
+	<h4><a href="#invite">invite.php</h4>
+	<ul>
+		<li><b>invite-success</b> - request processed successfully</li>
+		<li><b>invite-no-id</b> - user's "id" not specified in request</li>
+		<li><b>invite-args-missing</b> - missing either or all "code" and "user_id" in request</li>
+		<li><b>invite-code-invalid</b> - given incorrect invite code</li>
+		<li><b>invite-in-use</b> - given invite code is already in use</li>
+	</ul>
+</li>
+<li>
+	<h4><a href="#song">song.php</a></h4>
+	<ul>
+	<li><b>song-success</b> - request processed successfully</li>
+	<li><b>song-not-found</b> - song does not exist in the database</li>
+	<li><b>song-icecast-error</b> - could not connect and/or retrieve data from Icecast</li>
+	<li><b>song-incorrect-parameter</b> - cannot find a song using this parameter</li>
+	<li><b>song-incorrect-length</b> - song title has invalid length</li>
+	<li><b>album-incorrect-length</b> - album name has invalid length</li>
+	<li><b>song-id-not-a-number</b> - "song_id" variable has to be numeric</li>
+	</ul>
+</li>
+<li>
+	<h4><a href="#like">like.php</a></h4>
+	<ul>
+	<li><b>like-success</b> - request processed successfully</li>
+	<li><b>like-invalid-parameters</b> - missing or incorrect request parameter combination</li>
+	<li><b>like-id-not-numeric</b> - either or all "user_id", "song_id" and "status" are not numeric</li>
+	<li><b>like-song-not-liked</b> - song is not liked yet by the specified user</li>
+	</ul>
+</li>
 </ul>
 
 </body>

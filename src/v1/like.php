@@ -23,7 +23,7 @@ switch ($request_method)
   case "GET":
     
     if (!isset($_GET[ "song_id" ], $_GET["song_id"]))
-		die( json_encode(array("status" => false, "status-text" => "User ID and Song ID are required.")) );
+		die( json_encode(array("status" => false, "status-text" => "User ID and Song ID are required.", "code" => "like-invalid-parameters")) );
 		
 	$response = get_status($_GET[ "user_id" ], $_GET[ "song_id" ]);
 	echo json_encode($response);
@@ -35,7 +35,7 @@ switch ($request_method)
   case "POST":
     
     if ( !isset($_POST[ "user_id" ], $_POST[ "song_id" ], $_POST[ "status" ]) )
-		die(json_encode(array("status" => false, "status-text" => "Not enough arguments.")));
+		die(json_encode(array("status" => false, "status-text" => "Not enough arguments.", "code" => "like-invalid-parameters")));
 		
 	$response = add_status($_POST[ "user_id" ], $_POST[ "song_id" ], $_POST[ "status" ]);
 	echo json_encode($response);
@@ -47,7 +47,7 @@ switch ($request_method)
   case "DELETE":
     
     if (!isset($_GET[ "song_id" ], $_GET["song_id"]))
-		die( json_encode(array("status" => false, "status-text" => "User ID and Song ID are required.")) );
+		die( json_encode(array("status" => false, "status-text" => "User ID and Song ID are required.", "code" => "like-invalid-parameters")) );
 		
 	$response = delete_status($_GET[ "user_id" ], $_GET[ "song_id" ]);
 	echo json_encode($response);
@@ -56,7 +56,7 @@ switch ($request_method)
   # ----
 
   default:
-    echo json_encode( array("status" => false, "status-text" => "Method not accepted.") );
+    echo json_encode( array("status" => false, "status-text" => "Method not accepted.", "code" => "method-not-accepted") );
     http_response_code(405);
     break;
 
@@ -70,19 +70,19 @@ function get_status($user_id, $song_id)
 	global $mysqli;
 	
 	if ( !is_numeric($user_id) || !is_numeric($song_id) )
-		return array("status" => false, "status-text" => "IDs has to be a number.");
+		return array("status" => false, "status-text" => "IDs has to be a number.", "code" => "like-id-not-numeric");
 		
 	$sql = "SELECT * FROM `likes` WHERE `user_id` = $user_id AND `song_id` = $song_id";
 	$response = $mysqli->query($sql);
 	
 	if (!$response)
-		return array("status" => false, "status-text" => "Database error: $mysqli->error");
+		return array("status" => false, "status-text" => "Database error: $mysqli->error", "code" => "db-error");
 		
 	$data = $response->fetch_array(MYSQLI_ASSOC);
 	if ( empty($data) )
-		return array("status" => false, "status-text" => "This user has not liked this song yet.", "code" => "song-not-liked-yet");
+		return array("status" => false, "status-text" => "This user has not liked this song yet.", "code" => "like-song-not-liked");
 		
-	return array("status" => true, "status-text" => "Found status for this user and song.", "data" => $data);
+	return array("status" => true, "status-text" => "Found status for this user and song.", "data" => $data, "code" => "like-success");
 		
 }
 
@@ -93,20 +93,20 @@ function add_status($user_id, $song_id, $status)
 	global $mysqli;
 	
 	if ( !is_numeric($user_id) || !is_numeric($song_id) || !is_numeric($status) )
-		return array("status" => false, "status-text" => "All values has to be numbers.");
+		return array("status" => false, "status-text" => "All values has to be numbers.", "code" => "like-id-not-numeric");
 	
 	$current_status = get_status($user_id, $song_id);
 	
-	if (@$current_status['code'] != "song-not-liked-yet")
+	if (@$current_status['code'] != "like-song-not-liked")
 		$sql = "UPDATE `likes` SET `status` = $status WHERE `user_id` = $user_id AND `song_id` = $song_id";
 	else
 		$sql = "INSERT INTO `likes` VALUES (0, $song_id, $user_id, $status)";
 		
 	$response = $mysqli->query($sql);
 	if (!$response)
-		return array("status" => false, "status-text" => "Database error: $mysqli->error");
+		return array("status" => false, "status-text" => "Database error: $mysqli->error", "code" => "db-error");
 		
-	return array("status" => true, "status-text" => "Updated!");
+	return array("status" => true, "status-text" => "Updated!", "code" => "like-success");
 	
 }
 
@@ -117,15 +117,15 @@ function delete_status($user_id, $song_id)
 	global $mysqli;
 	
 	if ( !is_numeric($user_id) || !is_numeric($song_id) )
-		return array("status" => false, "status-text" => "All values has to be numbers.");
+		return array("status" => false, "status-text" => "All values has to be numbers.", "code" => "like-id-not-numeric");
 		
 	$sql = "DELETE FROM `likes` WHERE `user_id` = $user_id AND `song_id` = $song_id";
 	$response = $mysqli->query($sql);
 	
 	if (!$response)
-		return array("status" => false, "status-text" => "Database error: $mysqli->error");
+		return array("status" => false, "status-text" => "Database error: $mysqli->error", "code" => "db-error");
 		
-	return array("status" => true, "status-text" => "If entry like this existed, it is now gone.");
+	return array("status" => true, "status-text" => "If entry like this existed, it is now gone.", "code" => "like-success");
 	
 }
 
