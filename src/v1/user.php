@@ -9,7 +9,6 @@
 
 require_once("../vendor/autoload.php");
 use ParagonIE\ConstantTime\Base32;
-use OTPHP\TOTP;
 
 require_once("../database.php");
 header("Content-Type: application/json");
@@ -231,37 +230,6 @@ function create_new_account ($username, $email, $password)
 }
 
 
-function validate_password ($username, $password)
-{
-
-  global $mysqli;
-
-  if (( strlen($username) > 20 ) || ( strlen($username) < 4 ))
-    return array("status" => false, "status-text" => "Wrong username or password.", "code" => "user-wrong-credentials");
-
-  if (( strlen($password) > 64 ) || ( strlen($password) > 6 ))
-    return array("status" => false, "status-text" => "Wrong username or password.", "code" => "user-wrong-credentials");
-
-  $sql_escaped_username = $mysqli->real_string_escape($username);
-
-  if ($username != $sql_escaped_username)
-    return array("status" => false, "status-text" => "Access denied.", "code" => "sql-injection-attempt");
-
-  $sql_query = "SELECT `password` FROM `users` WHERE `username` = '$username'";
-  $response = $mysqli->query($sql_query);
-
-  if (!$response)
-    return array("status" => false, "status-text" => "Database error: $mysqli->error", "code" => "db-error");
-
-  $user_array = $response->fetch_array(MYSQLI_ASSOC);
-
-  $result = password_verify($password, $user_array[ "password" ]);
-
-  return array("status" => $result, "status-text" => "Checked without problems.", "code" => "user-valid-credentials");
-
-}
-
-
 function delete_account ($id)
 {
 
@@ -302,7 +270,9 @@ function edit_account ($id, $rows_to_change=[])
       $row_content = password_hash($row_content, PASSWORD_BCRYPT, array("cost" => 13));
 
     elseif ($row_key == "totp_key")
-      $new_totp_key = $row_content = trim( Base32::encodeUpper(random_bytes(8)), "=" );
+      $new_totp_key = $row_content = trim(Base32::encodeUpper(random_bytes(128)), '=');
+      
+    echo strlen($new_totp_key);
 
     $sql_escaped_row_key = $mysqli->real_escape_string($row_key);
     $sql_escaped_row_content = $mysqli->real_escape_string($row_content);
@@ -321,36 +291,9 @@ function edit_account ($id, $rows_to_change=[])
   if ( !$response )
     return array("status" => false, "status-text" => "Database error: $mysqli->error", "code" => "db-error");
 
-  return array("status" => true, "status-text" => "Information updated!", "totp-key" => $new_totp_key, "code" => "user-updated");
-
-}
-
-
-function validate_totp ($id, $code)
-{
-
-  global $mysqli;
-
-  if (!is_numeric($id))
-    return array("status" => false, "status-text" => "ID has to be numeric.", "code" => "user-id-not-a-number");
-
-  $sql_query = "SELECT `totp_key` FROM `users` WHERE `id`=$id";
-  $response = $mysqli->query($sql_query);
-
-  if (!$response)
-    return array("status" => false, "status-text" => "User with this ID does not exist.", "code" => "user-not-exist");
-
-  $response_data = $response->fetch_array(MYSQLI_ASSOC);
-  $secret_key = $response_data[ "totp_key" ];
-
-  $otp = TOTP::create($secret_key);
-  $is_code_valid = $otp->verify($code);
-
-  if ($is_code_valid)
-    return array("status" => true, "status-text" => "The given code is valid.", "code" => "user-totp-valid");
-
+  if ( $new_totp_key )
+    return array("status" => true, "status-text" => "Information updated!", "totp-key" => $new_totp_key, "code" => "user-updated");
   else
-    return array("status" => false, "status-text" => "The given code is not valid.", "code" => "user-totp-wrong");
+    return array("status" => true, "status-text" => "Information updated!", "code" => "user-updated");
 
 }
-

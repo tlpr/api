@@ -2,13 +2,13 @@
 
 ## Development roadmap:
 - **(Done)** ~~Basic database connectivity~~
-- *Users - partially done*
+- *~~Users~~ - done, except emails*
   - **(Done, no e-mail verification yet)** ~~User account registration~~
-  - **(Done, not available through API yet)** ~~User credentials validation~~
+  - **(Done)** ~~User credentials validation~~
   - **(Done)** ~~Getting user information~~
   - **(Done)** ~~User account edit function~~
   - **(Done)** ~~User account deletion~~
-  - **(Done, not available through API yet)** ~~Two factor authentication~~
+  - **(Done)** ~~Two factor authentication~~
 - *~~Invite codes~~ - done*
 	- **(Done)** ~~Create new invite code~~
 	- **(Done)** ~~Validate invite code~~
