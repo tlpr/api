@@ -72,7 +72,7 @@ CREATE TABLE `users` (
   `last_login_date` int(11) NOT NULL COMMENT 'UNIX timestamp when last log-in occured',
   `avatar_url` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'URL address to the user''s profile picture',
   `totp_key` varchar(256) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '' COMMENT 'User''s TOTP secret key, empty if 2FA disabled',
-  `oauth2` varchar(64) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '' COMMENT 'User''s generated oAuth2 key to access the REST API, empty if didn''t requested one'
+  `authcode` varchar(64) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '' COMMENT 'User''s generated authcode to access the REST API, empty if didn''t requested one'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --

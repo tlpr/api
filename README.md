@@ -2,7 +2,7 @@
 
 ## Development roadmap:
 - **(Done)** ~~Basic database connectivity~~
-- *~~Users~~ - done, except emails*
+- *~~Users~~ - done*
   - **(Done, no e-mail verification yet)** ~~User account registration~~
   - **(Done)** ~~User credentials validation~~
   - **(Done)** ~~Getting user information~~
@@ -20,6 +20,6 @@
 	- **(Done)** ~~Getting status information for user~~
 	- **(Done)** ~~Removing statuses~~
 - **(Done)** ~~Additional JSON argument for easier support of multilingual frontends.~~
-- **(Scheduled)** Required oAuth2 authentication.
+- **(Done)** ~~User's access to API using authentication keys~~
 
 Development roadmap may be subject to be changed.

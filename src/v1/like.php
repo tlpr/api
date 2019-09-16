@@ -9,12 +9,14 @@
 
 
 require_once("../database.php");
+require_once("../permissions.php");
 header("Content-Type: application/json");
 
 $database = new database();
 $mysqli = $database->get_connection_object();
 $request_method = $_SERVER[ "REQUEST_METHOD" ];
 
+$perms = get_permissions();
 
 switch ($request_method)
 {
@@ -67,10 +69,13 @@ switch ($request_method)
 function get_status($user_id, $song_id)
 {
 	
-	global $mysqli;
+	global $mysqli, $perms;
 	
 	if ( !is_numeric($user_id) || !is_numeric($song_id) )
 		return array("status" => false, "status-text" => "IDs has to be a number.", "code" => "like-id-not-numeric");
+		
+	if ( ($perms["permissions"] < 2) && ($perms["id"] != $user_id) )
+		return array("status" => false, "status-text" => "Access denied.", "code" => "no-permissions");
 		
 	$sql = "SELECT * FROM `likes` WHERE `user_id` = $user_id AND `song_id` = $song_id";
 	$response = $mysqli->query($sql);
@@ -114,10 +119,13 @@ function add_status($user_id, $song_id, $status)
 function delete_status($user_id, $song_id)
 {
 	
-	global $mysqli;
+	global $mysqli, $perms;
 	
 	if ( !is_numeric($user_id) || !is_numeric($song_id) )
 		return array("status" => false, "status-text" => "All values has to be numbers.", "code" => "like-id-not-numeric");
+		
+	if ( ($perms["permissions"] < 2) && ($perms["id"] != $user_id) )
+		return array("status" => false, "status-text" => "Access denied.", "code" => "no-permissions");
 		
 	$sql = "DELETE FROM `likes` WHERE `user_id` = $user_id AND `song_id` = $song_id";
 	$response = $mysqli->query($sql);

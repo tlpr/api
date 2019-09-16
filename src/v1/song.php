@@ -9,6 +9,7 @@
 
 
 require_once("../database.php");
+require_once("../permissions.php");
 require_once("../configuration.php");
 header("Content-Type: application/json");
 
@@ -16,6 +17,7 @@ $database = new database();
 $mysqli = $database->get_connection_object();
 $request_method = $_SERVER[ "REQUEST_METHOD" ];
 
+$perms = get_permissions();
 
 switch ($request_method)
 {
@@ -73,8 +75,10 @@ switch ($request_method)
 function get_song_information ($song_id)
 {
 
-  global $mysqli;
-  global $icestats_url;
+  global $mysqli, $icestats_url, $perms;
+
+  if ($perms["permissions"] < 1)
+    return array("status" => false, "status-text" => "Access denied.", "code" => "no-permissions");
 
 
   if ($song_id == "icecast")
@@ -147,8 +151,10 @@ function get_song_information ($song_id)
 function push_song_entry ($song_name, $album_title)
 {
 
-  global $mysqli;
-  global $album_covers_uri;
+  global $mysqli, $album_covers_uri, $perms;
+
+  if ($perms["permissions"] < 2)
+    return array("status" => false, "status-text" => "Access denied.", "code" => "no-permissions");
 
   if ( ( strlen($song_name) > 180 ) || ( strlen($song_name) < 5 ) )
     return array("status" => false, "status-text" => "Song name length is not correct. Please use \"Author - Song title\" format.", "code" => "song-incorrect-length");
@@ -179,7 +185,10 @@ function push_song_entry ($song_name, $album_title)
 function remove_song_entry ($format, $song)
 {
 	
-	global $mysqli;
+	global $mysqli, $perms;
+
+	if ($perms["permissions"] < 2)
+		return array("status" => false, "status-text" => "Access denied.", "code" => "no-permissions");
 	
 	$title = ($format == "by_title") ? $song : NULL;
 	$id    = ($format == "by_id")    ? $song : NULL;

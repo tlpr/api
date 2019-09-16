@@ -9,6 +9,7 @@
 
 
 require_once("../database.php");
+require_once("../permissions.php");
 header("Content-Type: application/json");
 
 $database = new database();
@@ -17,6 +18,8 @@ $request_method = $_SERVER[ "REQUEST_METHOD" ];
 
 require_once("../vendor/autoload.php");
 use OTPHP\TOTP;
+
+$perms = get_permissions();
 
 
 switch ($request_method)
@@ -63,7 +66,10 @@ switch ($request_method)
 function validate_totp ($id, $code)
 {
 
-  global $mysqli;
+  global $mysqli, $perms;
+  
+  if (perms["permissions"] < 3)
+    return array("status" => false, "status-text" => "Access denied.", "code" => "no-permissions");
 
   if (!is_numeric($id))
     return array("status" => false, "status-text" => "ID has to be numeric.", "code" => "user-id-not-a-number");
@@ -92,7 +98,10 @@ function validate_totp ($id, $code)
 function validate_password ($username, $password)
 {
 
-  global $mysqli;
+  global $mysqli, $perms;
+  
+  if (perms["permissions"] < 3)
+    return array("status" => false, "status-text" => "Access denied.", "code" => "no-permissions");
 
   if (( strlen($username) > 20 ) || ( strlen($username) < 4 ))
     return array("status" => false, "status-text" => "Wrong username or password.", "code" => "user-wrong-credentials");

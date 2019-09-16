@@ -11,13 +11,14 @@ require_once("../vendor/autoload.php");
 use ParagonIE\ConstantTime\Base32;
 
 require_once("../database.php");
+require_once("../permissions.php");
 header("Content-Type: application/json");
 
 $database = new database();
 $mysqli = $database->get_connection_object();
 $request_method = $_SERVER[ "REQUEST_METHOD" ];
 
-$oauth2 = @$_SERVER[ "HTTP_AUTHORIZATION" ];
+$perms = get_permissions();
 
 
 switch ($request_method)
@@ -109,7 +110,10 @@ switch ($request_method)
 function get_user_information ($user_id, $requested_information="")
 {
 
-  global $mysqli;
+  global $mysqli, $perms;
+
+  if ($perms["permissions"] == 0)
+    return array("status" => false, "status-text" => "Access denied.", "code" => "no-permissions");
 
   # since $user_id is a number, I'm skipping mysqli::real_escape_string
   if ( !is_numeric($user_id) )
@@ -135,6 +139,9 @@ function get_user_information ($user_id, $requested_information="")
 
   $user_data = $response->fetch_array(MYSQLI_ASSOC);
 
+  if ( ($perms["permissions"] < 2) && ($perms["id"] != $user_data["id"]) )
+    return array("status" => false, "status-text" => "Access denied.", "code" => "no-permissions");
+
   if ($user_data === null)
     return array("status" => false, "status-text" => "User does not exist.", "code" => "user-not-exist");
 
@@ -146,7 +153,10 @@ function get_user_information ($user_id, $requested_information="")
 function create_new_account ($username, $email, $password)
 {
 
-  global $mysqli;
+  global $mysqli, $perms;
+
+  if ($perms["permissions"] < 3)
+    return array("status" => false, "status-text" => "Access denied.", "code" => "no-permissions");
 
   $email_specified = !empty($email);
 
@@ -233,10 +243,13 @@ function create_new_account ($username, $email, $password)
 function delete_account ($id)
 {
 
-  global $mysqli;
+  global $mysqli, $perms;
 
   if ( !is_numeric($id) )
     return array("status" => false, "status-text" => "ID has to be a number.", "code" => "user-id-not-a-number");
+    
+  if ($perms["permissions"] < 3 && $id != $perms["id"])
+    return array("status" => false, "status-text" => "Access denied.", "code" => "no-permissions");
 
   $sql_query = "DELETE FROM `users` WHERE `id` = $id";
   $response = $mysqli->query($sql_query);
@@ -260,6 +273,9 @@ function edit_account ($id, $rows_to_change=[])
 
   if ( !is_numeric($id) )
     return array("status" => false, "status-text" => "ID has to be a number.", "code" => "user-id-not-a-number");
+    
+  if ($perms["permissions"] < 2 && $id != $perms["id"])
+    return array("status" => false, "status-text" => "Access denied.", "code" => "no-permissions");
 
   $sql_query = "UPDATE `users` SET ";
 

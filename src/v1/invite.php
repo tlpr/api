@@ -9,12 +9,14 @@
 
 
 require_once("../database.php");
+require_once("../permissions.php");
 header("Content-Type: application/json");
 
 $database = new database();
 $mysqli = $database->get_connection_object();
 $request_method = $_SERVER[ "REQUEST_METHOD" ];
 
+$perms = get_permissions();
 
 switch ($request_method)
 {
@@ -55,7 +57,10 @@ switch ($request_method)
 function generate_new_invite ($issuer_id)
 {
 
-  global $mysqli;
+  global $mysqli, $perms;
+  
+  if ($perms["permissions"] < 3)
+	return array("status" => false, "status-text" => "Access denied.", "code" => "no-permissions");
 
   if ( !is_numeric($issuer_id) )
     return array("status" => false, "status-text" => "Please specify the User ID.", "code" => "invite-no-id");
@@ -85,7 +90,10 @@ function generate_new_invite ($issuer_id)
 function validate_invitation ($put_vars)
 {
 
-  global $mysqli;
+  global $mysqli, $perms;
+  
+  if ($perms["permissions"] < 3):
+    return array("status" => false, "status-text" => "Access denied.", "code" => "no-permissions");
 
   $code = @$put_vars[ "code" ];
   $user_id = @$put_vars[ "user_id" ];
