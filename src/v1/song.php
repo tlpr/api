@@ -138,7 +138,10 @@ function get_song_information ($song_id)
 		return array("status" => false, "status-text" => "Database error: $mysqli->error", "code" => "db-error");
 		
 	$data = $response->fetch_array(MYSQLI_ASSOC);
-	return array("status" => true, "status-text" => "Success.", "song-data" => $data, "code" => "song-get-success");
+  if ($data)
+	  return array("status" => true, "status-text" => "Success.", "song-data" => $data, "code" => "song-get-success");
+  else
+    return array("status" => false, "status-text" => "This song does not exist.", "code" => "song-not-found");
 
   } # end of db
 
