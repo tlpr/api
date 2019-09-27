@@ -68,7 +68,7 @@ function validate_totp ($id, $code)
 
   global $mysqli, $perms;
   
-  if (perms["permissions"] < 3)
+  if ($perms["permissions"] < 3)
     return array("status" => false, "status-text" => "Access denied.", "code" => "no-permissions");
 
   if (!is_numeric($id))
@@ -100,7 +100,7 @@ function validate_password ($username, $password)
 
   global $mysqli, $perms;
   
-  if (perms["permissions"] < 3)
+  if ($perms["permissions"] < 3)
     return array("status" => false, "status-text" => "Access denied.", "code" => "no-permissions");
 
   if (( strlen($username) > 20 ) || ( strlen($username) < 4 ))
@@ -114,20 +114,27 @@ function validate_password ($username, $password)
   if ($username != $sql_escaped_username)
     return array("status" => false, "status-text" => "Access denied.", "code" => "sql-injection-attempt");
 
-  $sql_query = "SELECT `password` FROM `users` WHERE `nickname` = '$username'";
+  $sql_query = "SELECT * FROM `users` WHERE `nickname` = '$username'";
   $response = $mysqli->query($sql_query);
 
   if (!$response)
     return array("status" => false, "status-text" => "Database error: $mysqli->error", "code" => "db-error");
 
   $user_array = $response->fetch_array(MYSQLI_ASSOC);
-
+  
+  if ( !$user_array )
+    return array("status" => false, "status-text" => "User not exists.", "code" => "user-not-exists");
+  
   $result = password_verify($password, $user_array[ "password" ]);
-
+  $permissions = @$user_array['permissions'];
+  $user_id = @$user_array['id'];
+  $twofa_enabled = !empty($user_array['totp_key']);
+  
   return array(
     "status" => $result,
     "status-text" => "Checked without problems.", 
-    "code" => $result ? "user-valid-credentials" : "user-wrong-credentials"
+    "code" => ($result ? "user-valid-credentials" : "user-wrong-credentials"),
+    "info" => array("permissions" => $permissions, "user_id" => $user_id, "2fa_enabled" => $twofa_enabled)
   );
 
 }
