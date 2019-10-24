@@ -92,7 +92,7 @@ function validate_invitation ($put_vars)
 
   global $mysqli, $perms;
   
-  if ($perms["permissions"] < 3):
+  if ($perms["permissions"] < 3)
     return array("status" => false, "status-text" => "Access denied.", "code" => "no-permissions");
 
   $code = @$put_vars[ "code" ];
