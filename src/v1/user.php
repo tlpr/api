@@ -265,7 +265,7 @@ function delete_account ($id)
 function edit_account ($id, $rows_to_change=[])
 {
 
-  global $mysqli;
+  global $mysqli, $perms;
   $new_totp_key = '';
 
   if ( empty($rows_to_change) )
