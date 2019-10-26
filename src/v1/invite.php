@@ -104,8 +104,7 @@ function validate_invitation ($put_vars)
   if (!is_numeric($code))
     return array("status" => false, "status-text" => "Code is incorrect.", "code" => "invite-code-invalid");
 
-  $sql_escaped_username = $mysqli->real_escape_string($user_id);
-  if ($user_id != $sql_escaped_username)
+  if (!is_numeric($user_id))
     return array("status" => false, "status-text" => "Access denied.", "code" => "sql-injection-attempt");
 
   $select_sql_query = "SELECT `is_used` FROM `invitations` WHERE `code` = $code";
@@ -113,8 +112,8 @@ function validate_invitation ($put_vars)
   if (!$select_response)
     return array("status" => false, "status-text" => "Database error: $mysqli->error", "code" => "db-error");
 
-  $is_used = $select_response->fetch_array(MYSQLI_ASSOC)[ "is_used" ];
-  if ($is_used)
+  $invitation = $select_response->fetch_array(MYSQLI_ASSOC);
+  if (!$invitation || @$invitation["is_used"])
     return array("status" => false, "status-text" => "This code is in use.", "code" => "invite-in-use");
  
   $update_sql_query = "UPDATE `invitations` SET `is_used` = 1, `new_user` = $user_id WHERE `code` = $code";
