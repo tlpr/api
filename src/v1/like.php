@@ -24,7 +24,7 @@ switch ($request_method)
   # Get record from database.
   case "GET":
     
-    if (!isset($_GET[ "song_id" ], $_GET["song_id"]))
+    if (!isset($_GET[ "song_id" ], $_GET["user_id"]))
 		die( json_encode(array("status" => false, "status-text" => "User ID and Song ID are required.", "code" => "like-invalid-parameters")) );
 		
 	$response = get_status($_GET[ "user_id" ], $_GET[ "song_id" ]);
